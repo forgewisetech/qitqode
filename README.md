@@ -3,7 +3,7 @@
 <p align="center"><strong>Terminal AI coding agent with a memory.</strong></p>
 
 <p align="center">
-  <a href="https://qitqode.com">Website</a>
+  <a href="https://qitqode.com">Website</a> · <a href="https://github.com/forgewisetech/qitqode">Documentation</a>
 </p>
 
 <p align="center">
