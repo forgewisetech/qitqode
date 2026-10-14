@@ -19,6 +19,10 @@ One account, one gateway, and the public Qortex capability set — **Free (no co
 **Orchestrated** is a separate Qortex multi-stage pipeline capability (gate → plan → build → repair),
 not an ordinary interactive selection. No provider dashboards, no API-key juggling, no per-model billing spreadsheets.
 
+**Planner** helps turn complex goals into clear, actionable steps. Selected as the best planning model on the market across 7 benchmarks.
+**Repair** validates, corrects, and refines existing work. Selected as the best repair model on the market across 8 benchmarks.
+These selection explanations describe the standalone public tiers, not Orchestrated's internal stages.
+
 ---
 
 ## Quick Start
