@@ -85,10 +85,10 @@ Sept capacités interactives, une seule connexion. Changez de capacité en plein
 
 ### Plusieurs agents
 
-| Agent       | Description                                                                 |
-| ----------- | --------------------------------------------------------------------------- |
-| **build**   | Par défaut. Autorisations d'outils complètes pour le développement          |
-| **plan**    | Mode d'analyse en lecture seule pour l'exploration de code et la conception de solutions |
+| Agent       | Description                                                                                                   |
+| ----------- | ------------------------------------------------------------------------------------------------------------- |
+| **build**   | Par défaut. Autorisations d'outils complètes pour le développement                                            |
+| **plan**    | Mode d'analyse en lecture seule pour l'exploration de code et la conception de solutions                      |
 | **compose** | Mode d'orchestration pour le développement piloté par spécifications et les workflows pilotés par compétences |
 
 Appuyez sur `Alt+M` pour passer d'un agent principal à l'autre. Les sous-agents sont créés par le système selon les besoins.
@@ -140,11 +140,11 @@ Exécutez `qitqode serve` pour un serveur HTTP headless, ou `qitqode acp` pour l
 
 **Exécutions sans surveillance.** Trois options décident de la fréquence à laquelle la TUI s'arrête pour vous demander quelque chose :
 
-| Option | Questions | Autorisations d'outils |
-| --- | --- | --- |
-| `--never-ask` | décidées automatiquement | vous sont toujours demandées |
-| `--fullauto` | décidées automatiquement | approuvées automatiquement, sauf ce que votre configuration refuse explicitement |
-| `--headless` | décidées automatiquement | approuvées automatiquement — et aucune TUI ; nécessite `--prompt` ou stdin |
+| Option        | Questions                | Autorisations d'outils                                                           |
+| ------------- | ------------------------ | -------------------------------------------------------------------------------- |
+| `--never-ask` | décidées automatiquement | vous sont toujours demandées                                                     |
+| `--fullauto`  | décidées automatiquement | approuvées automatiquement, sauf ce que votre configuration refuse explicitement |
+| `--headless`  | décidées automatiquement | approuvées automatiquement — et aucune TUI ; nécessite `--prompt` ou stdin       |
 
 `--fullauto` conserve la TUI interactive normale : vous suivez la session en direct et un badge `FULL-AUTO` reste affiché sur le prompt tant que des autorisations sont accordées à votre place. Tout ce que vous passez à `deny` dans votre configuration reste refusé. `--fullauto` implique `--never-ask`, et le combiner avec `--headless` est sans effet (headless se comporte déjà ainsi).
 

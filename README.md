@@ -84,11 +84,19 @@ You don't need another chat wrapper. You need an agent that can hold a long-runn
 
 ### 1. Memory that survives the session
 
-Every project gets a persistent memory layer backed by SQLite full-text search: project knowledge in `MEMORY.md`, automatic session checkpoints, scratch notes, and per-task progress logs. When you resume, the relevant memory is injected automatically — ranked and token-budgeted, not dumped. The agent picks up where it left off instead of relearning your codebase.
+Every project gets a persistent memory layer backed by SQLite full-text search: project knowledge in `MEMORY.md`, automatic session checkpoints, scratch notes, and per-task progress logs. Memory retrieval remains separate from binding instructions and permission records. The startup-context manifest records selected claims and their provenance; imported or stale claims do not become policy or approval.
 
 ### 2. Context that rebuilds itself
 
-Long tasks blow past context windows. QitQode watches the window, checkpoints state before it fills, and reconstructs working context from the latest checkpoint, project memory, and task progress — so a multi-hour refactor doesn't die at the token limit.
+Long tasks blow past context windows. QitQode watches the window, checkpoints state before it fills, and reconstructs working context from the latest checkpoint, project memory, and task progress. Its versioned startup-context manifest is bounded and defaults to `observe`; `inject` must be explicitly configured. See [Startup context](../docs/startup-context.md).
+
+`observe` records an inspectable manifest without adding the compact frame to
+the provider request. `off` creates no new startup manifest, while `inject`
+adds the frame and records delivery only when final-request evidence matches.
+Ordinary instructions and local safety gates still apply in every mode.
+QitQode automatically loads `AGENTS.md` and `replit.md` together when they are
+present in an applicable project directory. `CLAUDE.md` and legacy `CONTEXT.md`
+remain fallbacks when that directory has no `AGENTS.md`.
 
 ### 3. Autonomy you can hold accountable
 
@@ -104,7 +112,7 @@ inspectable, not a surprise at month-end.
 
 ### And the parts others leave out
 
-- **Credentials encrypted at rest** — your auth tokens are sealed with a key held in the OS keyring, and credential environment variables are stripped by default from every child process the agent spawns.
+- **Credentials kept in protected local storage** — QitQode sign-in tokens and MCP integration credentials are encrypted with a key held by your OS keyring where one is available. Where no keyring is available, they are kept in a file that only your user account can read; that file is not encrypted. Each connection shows which of these it uses. Credential environment variables are stripped by default from every child process the agent spawns.
 - **A TUI that everyone can use** — screen-reader accessible mode, `NO_COLOR` support, reduced motion, announcement verbosity control, and a WCAG AA high-contrast theme. First-class, not bolted on. (Details below.)
 - **Plain MIT license** — no separate use-restrictions file, no service terms buried in the tail of the README.
 - **Device-code sign-in built for real machines** — works over SSH, in containers, and in remote sandboxes where a loopback browser redirect never could.
@@ -115,11 +123,11 @@ inspectable, not a surprise at month-end.
 
 ### Multiple Agents
 
-| Agent       | Description                                                                 |
-| ----------- | --------------------------------------------------------------------------- |
-| **build**   | Default. Full tool permissions for development                              |
-| **plan**    | Read-only analysis mode for code exploration and solution design            |
-| **compose** | Orchestration mode for specs-driven development and skill-driven workflows  |
+| Agent       | Description                                                                |
+| ----------- | -------------------------------------------------------------------------- |
+| **build**   | Default. Full tool permissions for development                             |
+| **plan**    | Read-only analysis mode for code exploration and solution design           |
+| **compose** | Orchestration mode for specs-driven development and skill-driven workflows |
 
 Press `Alt+M` to cycle between primary agents. Subagents are created by the system as needed.
 
@@ -132,7 +140,7 @@ Cross-session memory powered by SQLite FTS5 full-text search:
 - **Scratch notes** (`notes.md`) — temporary note area for agents
 - **Task progress** (`tasks/<id>/progress.md`) — per-task logs
 
-Memory is injected automatically when a session resumes, so the agent does not need to relearn project context.
+On a checkpoint rebuild, memory is loaded into the rebuilt context. For every other session entry, QitQode selects relevant memory into a compact startup context. The default `observe` mode only records that selection and adds no selected memory content to the request. Set `startup_context.mode` to `inject` to add the compact frame. See [`docs/startup-context.md`](../docs/startup-context.md) for how the selection, corrections, and forgetting work.
 
 ### Intelligent Context Management
 
@@ -143,6 +151,10 @@ Memory is injected automatically when a session resumes, so the agent does not n
 ### Task Tracking
 
 A tree-shaped task system (`T1`, `T1.1`, `T1.2`, …) that integrates automatically with the checkpoint system, so task progress is preserved when sessions resume.
+
+### Progress & Deliverables
+
+A one-line session headline in the status bar, a `/progress` view that separates what is running, what needs your decision, what is verified, and what you can open, and `qitqode progress` / `qitqode deliverables` for terminals without the TUI, including `qitqode deliverables report` for a read-only local report of a session. Approvals appear only when a rule needs you, and a verified result is shown only for the current files. See [the progress and deliverables record](../../docs/progress-and-deliverables.md).
 
 ### Subagent System
 
@@ -170,11 +182,11 @@ Run `qitqode serve` for a headless HTTP server, or `qitqode acp` for Agent Clien
 
 **Unattended runs.** Three flags decide how often the TUI stops to ask you something:
 
-| Flag | Questions | Tool permissions |
-| --- | --- | --- |
-| `--never-ask` | auto-decided | still prompt you |
-| `--fullauto` | auto-decided | auto-approved, except what your config explicitly denies |
-| `--headless` | auto-decided | auto-approved — and no TUI at all; needs `--prompt` or piped stdin |
+| Flag          | Questions    | Tool permissions                                                   |
+| ------------- | ------------ | ------------------------------------------------------------------ |
+| `--never-ask` | auto-decided | still prompt you                                                   |
+| `--fullauto`  | auto-decided | auto-approved, except what your config explicitly denies           |
+| `--headless`  | auto-decided | auto-approved — and no TUI at all; needs `--prompt` or piped stdin |
 
 `--fullauto` keeps the normal interactive TUI: you watch the session as it runs, and a `FULL-AUTO` badge stays on the prompt for as long as permissions are being granted on your behalf. Anything you set to `deny` in your config is still refused. `--fullauto` implies `--never-ask`, and passing it alongside `--headless` is harmless (headless already behaves this way).
 
@@ -230,6 +242,14 @@ QitQode is configured via `.qitqode/qitqode.json` in the project directory (or `
 - Keybindings and theme
 
 Max Mode (parallel best-of-N reasoning with judge selection) can be enabled via `experimental.maxMode` in the config.
+
+### Replit App awareness
+
+Inside a Replit App, `qitqode host status` shows what QitQode can do now: the App ID, declared run and workflow commands,
+listening local services, configured health checks, and the development URL. Read-only is the default. Sign in with
+`qitqode host connect` so QitQode can confirm the App with Replit, and set `host.replit.mode` to `operate` only if you want
+publishing, with an approval prompt every time. Replit's response formats are not yet verified, so Replit account facts are
+reported as "not verified yet" until they are. See [docs/replit-host-awareness.md](../docs/replit-host-awareness.md).
 
 ---
 
