@@ -105,9 +105,10 @@ Set a stopping condition with `/goal`. When the agent thinks it's done, an indep
 ### 4. One subscription, zero provider plumbing
 
 Seven interactive capabilities, one sign-in. Switch the selected capability mid-session with
-`/free`, `/fast`, `/economical`, `/adaptive`, `/planner`, `/repair`, or `/max-int`. The
-`/orchestrated` command selects Qortex's separate multi-stage pipeline (gate → plan → build → repair),
-not one of the seven ordinary interactive tiers. Check your balance any time with the built-in qredits display — usage is
+`/free`, `/fast`, `/economical`, `/adaptive`, `/planner`, `/repair`, or `/max-int`. Where Qortex
+offers private-family tiers (for example `fast-private`), they appear in the model picker too. The
+orchestrated pipeline is dormant and is no longer offered; a saved `orchestrated` selection fails with a
+clear message instead of switching tiers silently. Check your balance any time with the built-in qredits display — usage is
 inspectable, not a surprise at month-end.
 
 ### And the parts others leave out
